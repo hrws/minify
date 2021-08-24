@@ -52,6 +52,20 @@ function minify() {
     
     if (/^(-v|--version)$/.test(In))
         return log('v' + Version);
+    /** Mod to allow options file to be specified */
+    if (m = /^(-o=|--option=)(.*)$/.exec(In)) {
+        // handle options
+        if (m[2] && m[2] != "") {
+            files.shift();
+            const data = await readFile(m[2], 'utf8');	
+            opt = JSON.parse(data);
+            if (opt && opt.js && opt.js.format && opt.js.format.preamble) {
+                // search and replace [date] with current date string
+                opt.js.format.preamble = opt.js.format.preamble.replace("[date]", 
+                (new Date()).toISOString().substr(0,10));
+            }
+        }
+    }
     
     uglifyFiles(files);
 }
@@ -75,7 +89,8 @@ async function processStream(chunks) {
 
 function uglifyFiles(files) {
     const minify = require('..');
-    const minifiers = files.map(minify);
+    const mapfunc = (cur) => {return minify(cur, opt);}
+    const minifiers = files.map(mapfunc);
     
     Promise.all(minifiers)
         .then(logAll)

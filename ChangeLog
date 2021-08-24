@@ -1,3 +1,7 @@
+2021.08.24, v7.0.x
+feature:
+- (minify) allow options file in json format as 1st parameter -o="minfy.json"
+
 2021.05.04, v7.0.2
 
 fix:
